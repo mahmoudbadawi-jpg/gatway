@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/i18n/LanguageProvider";
 import { Header } from "@/components/Header";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: "GATway — GAT / Qudurat Exam Prep",
@@ -14,7 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-canvas font-sans text-navy">
         <LanguageProvider>
           <Header />
-          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+          <main className="mx-auto max-w-6xl px-4 py-8">
+            <Breadcrumbs />
+            {children}
+          </main>
           <Footer />
         </LanguageProvider>
       </body>
