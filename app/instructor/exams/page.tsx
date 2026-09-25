@@ -28,6 +28,17 @@ export default function InstructorExamsPage() {
     setFetching(false);
   }
 
+  async function handleDelete(examId: string, title: string) {
+    if (!confirm(`Delete "${title}"? This also deletes any student attempts for it. This cannot be undone.`))
+      return;
+    const { error } = await supabase.from("exams").delete().eq("id", examId);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setExams((prev) => prev.filter((e) => e.id !== examId));
+  }
+
   function copyShareLink(token: string) {
     const url = `${window.location.origin}/exam/take/${token}`;
     navigator.clipboard.writeText(url);
@@ -63,12 +74,32 @@ export default function InstructorExamsPage() {
                   {exam.is_public ? "Public" : "Private"}
                 </p>
               </div>
-              <button
-                onClick={() => copyShareLink(exam.share_token)}
-                className="rounded-card border border-border px-3 py-1.5 text-sm text-navy hover:border-teal"
-              >
-                Copy share link
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/instructor/exams/${exam.id}/edit`}
+                  className="rounded-card border border-border px-3 py-1.5 text-sm text-navy hover:border-teal"
+                >
+                  Edit
+                </Link>
+                <Link
+                  href={`/instructor/exams/${exam.id}/print`}
+                  className="rounded-card border border-border px-3 py-1.5 text-sm text-navy hover:border-teal"
+                >
+                  Print
+                </Link>
+                <button
+                  onClick={() => copyShareLink(exam.share_token)}
+                  className="rounded-card border border-border px-3 py-1.5 text-sm text-navy hover:border-teal"
+                >
+                  Copy share link
+                </button>
+                <button
+                  onClick={() => handleDelete(exam.id, exam.title_en)}
+                  className="rounded-card border border-border px-3 py-1.5 text-sm text-navy/70 hover:border-red-400 hover:text-red-600"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
