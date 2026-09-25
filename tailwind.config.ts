@@ -2,24 +2,24 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
-  darkMode: ["class"],
+  darkMode: ["selector", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#0A2540",
-          light: "#0B2545",
+          DEFAULT: "rgb(var(--color-navy) / <alpha-value>)",
+          light: "rgb(var(--color-navy-light) / <alpha-value>)",
         },
         teal: {
-          DEFAULT: "#00A88F",
-          light: "#00C9A7",
+          DEFAULT: "rgb(var(--color-teal) / <alpha-value>)",
+          light: "rgb(var(--color-teal-light) / <alpha-value>)",
         },
         canvas: {
-          DEFAULT: "#F8FAFC",
-          alt: "#F1F5F9",
+          DEFAULT: "rgb(var(--color-canvas) / <alpha-value>)",
+          alt: "rgb(var(--color-canvas-alt) / <alpha-value>)",
         },
-        surface: "#FFFFFF",
-        border: "#E2E8F0",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        border: "rgb(var(--color-border) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
