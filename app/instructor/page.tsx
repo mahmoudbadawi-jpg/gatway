@@ -10,20 +10,22 @@ export default function InstructorPortal() {
       <h1 className="text-2xl font-bold text-navy">{t("dashboard.instructor.title")}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         <ModuleCard
+          href="/instructor/questions"
           title={t("dashboard.instructor.pool")}
-          description="Browse and filter all questions added by any instructor across Grades 4–12, difficulty, and single/mixed categories."
+          description="Browse, filter, and add questions across Grades 4–12, difficulty, and categories."
         />
         <ModuleCard
-          title={t("dashboard.instructor.importer")}
-          description="CSV parser supporting bilingual inputs (English & Arabic text, choices, explanations)."
-        />
-        <ModuleCard
+          href="/instructor/exams"
           title={t("dashboard.instructor.exams")}
           description="Manual selection or Auto-Balanced Generator (30% Easy / 50% Medium / 20% Hard) with automatic timer calculation."
         />
         <ModuleCard
+          title={t("dashboard.instructor.importer")}
+          description="Bulk CSV import — coming soon."
+        />
+        <ModuleCard
           title={t("dashboard.instructor.classes")}
-          description="Create classes, generate shareable Class Claim Links, and add parents by email."
+          description="Classes and parent linking — coming soon."
         />
       </div>
     </div>

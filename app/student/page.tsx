@@ -9,10 +9,14 @@ export default function StudentPortal() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold text-navy">{t("dashboard.student.title")}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
-        <ModuleCard title={t("dashboard.student.assigned")} description="Exams assigned by your class instructor." />
-        <ModuleCard title={t("dashboard.student.practice")} description="Public practice tests shared by any instructor." />
-        <ModuleCard title={t("dashboard.student.progress")} description="Progress charts across attempts and categories." />
-        <ModuleCard title={t("dashboard.student.leaderboard")} description="See how you rank against your class." />
+        <ModuleCard
+          href="/student/exams"
+          title={t("dashboard.student.practice")}
+          description="Public practice tests shared by any instructor — take them now."
+        />
+        <ModuleCard title={t("dashboard.student.assigned")} description="Class-assigned exams — coming soon." />
+        <ModuleCard title={t("dashboard.student.progress")} description="Progress charts — coming soon." />
+        <ModuleCard title={t("dashboard.student.leaderboard")} description="Class leaderboard — coming soon." />
       </div>
     </div>
   );
