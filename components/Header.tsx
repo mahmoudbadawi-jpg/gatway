@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageProvider";
 
@@ -23,12 +24,11 @@ export function Header() {
   }
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-border bg-surface/90 backdrop-blur dark:bg-navy-light/90">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Image src="/logo/gatway-logo.png" alt="GATway" width={36} height={36} priority />
-          <span className="text-lg font-bold text-navy">{t("app.name")}</span>
-        </div>
+    <header className="no-print sticky top-0 z-50 border-b border-border bg-surface/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
+        <Link href="/dashboard" aria-label={t("app.name")} className="flex items-center">
+          <Image src="/logo/gatway-logo.png" alt={t("app.name")} width={72} height={72} priority />
+        </Link>
 
         <div className="flex items-center gap-5">
           <button
