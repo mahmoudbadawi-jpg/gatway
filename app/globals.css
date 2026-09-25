@@ -5,6 +5,28 @@
 :root {
   --font-sans: "Inter", system-ui, sans-serif;
   --font-arabic: "IBM Plex Sans Arabic", system-ui, sans-serif;
+
+  /* Light theme — RGB channel triplets (no commas) for Tailwind's alpha-value syntax */
+  --color-navy: 10 37 64;         /* #0A2540 — primary text */
+  --color-navy-light: 11 37 69;   /* #0B2545 */
+  --color-teal: 0 168 143;        /* #00A88F — accent */
+  --color-teal-light: 0 201 167;  /* #00C9A7 */
+  --color-canvas: 248 250 252;    /* #F8FAFC — page background */
+  --color-canvas-alt: 241 245 249;/* #F1F5F9 */
+  --color-surface: 255 255 255;   /* #FFFFFF — card background */
+  --color-border: 226 232 240;    /* #E2E8F0 */
+}
+
+html[data-theme="dark"] {
+  /* Eye-comfort / dark theme — same roles, inverted values so text stays readable */
+  --color-navy: 236 242 248;      /* light text on dark background */
+  --color-navy-light: 203 216 230;
+  --color-teal: 0 201 167;        /* brighter teal reads better on dark */
+  --color-teal-light: 45 214 184;
+  --color-canvas: 8 26 46;        /* dark navy page background */
+  --color-canvas-alt: 13 36 61;
+  --color-surface: 15 42 71;      /* card background — lighter than canvas for contrast */
+  --color-border: 30 58 95;
 }
 
 html[dir="rtl"] body {
@@ -12,24 +34,15 @@ html[dir="rtl"] body {
 }
 
 body {
-  background-color: #f8fafc;
-  color: #0a2540;
-}
-
-html[data-theme="dark"] body {
-  background-color: #0a2540;
-  color: #f1f5f9;
+  background-color: rgb(var(--color-canvas));
+  color: rgb(var(--color-navy));
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .card {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  background-color: rgb(var(--color-surface));
+  border: 1px solid rgb(var(--color-border));
   border-radius: 0.75rem;
-}
-
-html[data-theme="dark"] .card {
-  background-color: #0b2545;
-  border-color: #12345c;
 }
 
 /* Toggle switch */
@@ -40,12 +53,12 @@ html[data-theme="dark"] .card {
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background-color: #e2e8f0;
+  background-color: rgb(var(--color-border));
   transition: background-color 0.15s ease;
   cursor: pointer;
 }
 .switch[data-on="true"] {
-  background-color: #00a88f;
+  background-color: rgb(var(--color-teal));
 }
 .switch-thumb {
   position: absolute;
@@ -75,16 +88,16 @@ html[dir="rtl"] .switch[data-on="true"] .switch-thumb {
   gap: 0.5rem;
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background-color: #ffffff;
+  border: 1px solid rgb(var(--color-border));
+  background-color: rgb(var(--color-surface));
   font-size: 0.875rem;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 .pill-card[data-selected="true"] {
-  border-color: #00a88f;
-  background-color: rgba(0, 168, 143, 0.08);
-  color: #0a2540;
+  border-color: rgb(var(--color-teal));
+  background-color: rgb(var(--color-teal) / 0.12);
+  color: rgb(var(--color-navy));
   font-weight: 600;
 }
 
