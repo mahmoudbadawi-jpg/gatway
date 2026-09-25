@@ -38,12 +38,43 @@ interface ParsedQuestion {
   errors: string[];
 }
 
+function buildAIPrompt(topic: string, grade: number, count: number) {
+  return `You are generating exam-prep questions for the GAT (Qudurat) test, grade ${grade} level, on the topic: ${topic || "general aptitude"}.
+
+Generate exactly ${count} multiple-choice questions in bilingual English and Arabic, formatted as CSV with EXACTLY this header row (case-sensitive, comma-separated):
+text_en,text_ar,option1_en,option2_en,option3_en,option4_en,option1_ar,option2_ar,option3_ar,option4_ar,correct_option_index,explanation_en,explanation_ar,difficulty,target_grade
+
+Rules:
+- Output ONLY the CSV content: the header row, then one row per question. No markdown code fences, no commentary before or after.
+- Wrap every field in double quotes, since some fields contain commas.
+- correct_option_index is 0-based: 0 = option1, 1 = option2, 2 = option3, 3 = option4.
+- difficulty must be exactly EASY, MEDIUM, or HARD (uppercase, no other values).
+- target_grade must be the number ${grade} for every row.
+- Roughly 30% EASY, 50% MEDIUM, 20% HARD across the ${count} questions.
+- Arabic text must be natural, correct Modern Standard Arabic — not a literal machine translation of the English.
+- Each explanation should be 1–2 sentences explaining why the correct answer is right.
+- Do not repeat the same question twice, and vary the phrasing/structure across questions.
+- Keep questions realistic and appropriate to a grade ${grade} general aptitude test, focused on: ${topic || "a general mix of verbal and quantitative reasoning"}.
+
+Begin your output now with the header row, then the ${count} question rows.`;
+}
+
 export default function BulkImportPage() {
   const { profile, loading } = useRequireRole(["ADMIN", "INSTRUCTOR"]);
   const [parsed, setParsed] = useState<ParsedQuestion[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiGrade, setAiGrade] = useState(7);
+  const [aiCount, setAiCount] = useState(20);
+  const [copied, setCopied] = useState(false);
+
+  function copyPrompt() {
+    navigator.clipboard.writeText(buildAIPrompt(aiTopic, aiGrade, aiCount));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   function downloadTemplate() {
     const example = [
@@ -182,6 +213,72 @@ export default function BulkImportPage() {
         Columns required: {TEMPLATE_HEADERS.join(", ")}. Download the template above for the
         exact format — options 1–4 in order, correct_option_index is 0-based (0 = option 1).
       </p>
+
+      <div className="card flex flex-col gap-4 p-5">
+        <div>
+          <p className="font-medium text-navy">Generate questions with AI</p>
+          <p className="text-sm text-navy/60">
+            Fill in a topic, grade, and count, copy the prompt, and paste it into ChatGPT,
+            Claude, Gemini, or any AI model. It outputs CSV text ready to save as a .csv file
+            and upload above.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-4">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-navy/80">Topic</span>
+            <input
+              value={aiTopic}
+              onChange={(e) => setAiTopic(e.target.value)}
+              placeholder="e.g. reading comprehension, algebra, analogies"
+              className="w-64 rounded-lg border border-border px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-navy/80">Grade</span>
+            <select
+              value={aiGrade}
+              onChange={(e) => setAiGrade(Number(e.target.value))}
+              className="w-28 rounded-lg border border-border px-3 py-2"
+            >
+              {Array.from({ length: 9 }, (_, i) => i + 4).map((g) => (
+                <option key={g} value={g}>
+                  Grade {g}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-navy/80"># of questions</span>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={aiCount}
+              onChange={(e) => setAiCount(Number(e.target.value))}
+              className="w-24 rounded-lg border border-border px-3 py-2"
+            />
+          </label>
+        </div>
+
+        <textarea
+          readOnly
+          value={buildAIPrompt(aiTopic, aiGrade, aiCount)}
+          className="h-48 w-full resize-none rounded-lg border border-border bg-canvas-alt p-3 font-mono text-xs text-navy/80"
+        />
+
+        <button
+          onClick={copyPrompt}
+          className="self-start rounded-card bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-navy-light"
+        >
+          {copied ? "Copied!" : "Copy prompt"}
+        </button>
+
+        <p className="text-xs text-navy/50">
+          After the AI responds, copy its output, paste it into a plain text file, save it with
+          a .csv extension, then upload it above using "Choose CSV file".
+        </p>
+      </div>
 
       {parsed.length > 0 && (
         <div className="card flex flex-col gap-4 p-5">
