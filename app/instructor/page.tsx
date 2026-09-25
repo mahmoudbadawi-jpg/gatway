@@ -20,8 +20,9 @@ export default function InstructorPortal() {
           description="Manual selection or Auto-Balanced Generator (30% Easy / 50% Medium / 20% Hard) with automatic timer calculation."
         />
         <ModuleCard
+          href="/instructor/import"
           title={t("dashboard.instructor.importer")}
-          description="Bulk CSV import — coming soon."
+          description="Bulk-upload bilingual questions from a CSV file, with row-by-row validation."
         />
         <ModuleCard
           title={t("dashboard.instructor.classes")}
