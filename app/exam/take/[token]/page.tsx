@@ -1,12 +1,30 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useRequireRole } from "@/lib/useRequireRole";
 import { supabase } from "@/lib/supabaseClient";
 import { Exam, Question } from "@/lib/types";
+import GuestExamRunner from "./GuestExamRunner";
 
+/**
+ * A `?ref=` on this URL means a LingoTrace teacher assigned this exam and
+ * the student is arriving via the parent/student portal without a GATway
+ * login — hand off to the guest runner instead of requiring sign-in.
+ */
 export default function ExamRunnerPage() {
+  const searchParams = useSearchParams();
+  const ref = searchParams.get("ref");
+  const { token } = useParams<{ token: string }>();
+
+  if (ref) {
+    return <GuestExamRunner token={token} ref={ref} />;
+  }
+
+  return <AuthenticatedExamRunner />;
+}
+
+function AuthenticatedExamRunner() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const { profile, loading } = useRequireRole(["ADMIN", "INSTRUCTOR", "STUDENT", "PARENT"]);
