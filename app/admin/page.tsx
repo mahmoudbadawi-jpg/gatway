@@ -10,8 +10,9 @@ export default function AdminPortal() {
       <h1 className="text-2xl font-bold text-navy">{t("dashboard.admin.title")}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         <ModuleCard
+          href="/admin/users"
           title={t("dashboard.admin.users")}
-          description="View, edit, promote, or assign roles (Admin, Instructor, Student, Parent)."
+          description="View every user, and promote or demote their role (Admin, Instructor, Student, Parent)."
         />
         <ModuleCard
           title={t("dashboard.admin.monitoring")}

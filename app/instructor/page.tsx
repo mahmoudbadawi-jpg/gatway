@@ -25,8 +25,14 @@ export default function InstructorPortal() {
           description="Bulk-upload bilingual questions from a CSV file, with row-by-row validation."
         />
         <ModuleCard
+          href="/instructor/classes"
           title={t("dashboard.instructor.classes")}
-          description="Classes and parent linking — coming soon."
+          description="Create classes, add students by email, generate a Class Claim Link, and assign exams to a class."
+        />
+        <ModuleCard
+          href="/instructor/inquiries"
+          title="Question Inquiries"
+          description="View and reply to student questions about specific exam questions."
         />
       </div>
     </div>

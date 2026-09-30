@@ -10,10 +10,12 @@ export default function ParentPortal() {
       <h1 className="text-2xl font-bold text-navy">{t("dashboard.parent.title")}</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         <ModuleCard
+          href="/parent/link"
           title={t("dashboard.parent.children")}
-          description="Overview cards for linked children, with scores, completion rate, category breakdown, and class ranking."
+          description="See your linked children, their scores, and completion history."
         />
         <ModuleCard
+          href="/parent/link"
           title={t("dashboard.parent.link")}
           description="Link by entering your child's registered email, or claim a child from a shared class link."
         />

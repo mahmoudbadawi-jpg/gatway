@@ -103,6 +103,8 @@ export default function NewExamPage() {
     }));
     const { error: linkErr } = await supabase.from("exam_questions").insert(rows);
     if (linkErr) {
+      // Roll back the orphaned exam row so a failed link step doesn't leave a ghost exam behind.
+      await supabase.from("exams").delete().eq("id", (exam as { id: string }).id);
       setError(linkErr.message);
       setSaving(false);
       return;

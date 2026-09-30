@@ -12,11 +12,18 @@ export default function StudentPortal() {
         <ModuleCard
           href="/student/exams"
           title={t("dashboard.student.practice")}
-          description="Public practice tests shared by any instructor — take them now."
+          description="Class-assigned exams and public practice tests — take them now."
         />
-        <ModuleCard title={t("dashboard.student.assigned")} description="Class-assigned exams — coming soon." />
-        <ModuleCard title={t("dashboard.student.progress")} description="Progress charts — coming soon." />
-        <ModuleCard title={t("dashboard.student.leaderboard")} description="Class leaderboard — coming soon." />
+        <ModuleCard
+          href="/student/progress"
+          title={t("dashboard.student.progress")}
+          description="Your score history and a topic-by-topic breakdown of strengths and weaknesses."
+        />
+        <ModuleCard
+          href="/student/leaderboard"
+          title={t("dashboard.student.leaderboard")}
+          description="See how your scores compare to the rest of your class."
+        />
       </div>
     </div>
   );

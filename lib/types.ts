@@ -51,3 +51,38 @@ export interface StudentAttempt {
   started_at: string;
   submitted_at: string | null;
 }
+
+export interface ClassRow {
+  id: string;
+  instructor_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ClassStudentRow {
+  class_id: string;
+  student_id: string;
+}
+
+export interface ParentStudentLink {
+  id: string;
+  parent_id: string;
+  student_id: string;
+  status: "PENDING" | "APPROVED";
+  created_at: string;
+}
+
+export interface ExamAssignmentRow {
+  exam_id: string;
+  class_id: string;
+}
+
+export interface QuestionInquiry {
+  id: string;
+  student_id: string;
+  question_id: string;
+  message: string;
+  instructor_response: string | null;
+  status: string;
+  created_at: string;
+}
