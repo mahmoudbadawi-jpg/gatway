@@ -11,11 +11,14 @@ import { reportResultToLingoTrace } from "@/lib/lingotraceReport";
  *
  * 2. LingoBite Play has no server of its own, so instead a Supabase
  *    Database Webhook (configured in Play's Supabase dashboard, not code)
- *    calls this URL whenever a row lands in `guest_game_results`. That
- *    request comes from Supabase's infrastructure, not a browser, so it
- *    CAN safely carry a secret — set one on the webhook's custom header
- *    and set the same value as WEBHOOK_SHARED_SECRET here. Supabase's
- *    default webhook payload shape is { type, table, record, schema }.
+ *    calls this URL whenever a row lands in `guest_game_results` OR
+ *    `guest_escape_room_results` — Play has two separate guest-scoring
+ *    tables for its two separate game systems, so set up one webhook per
+ *    table, both pointed here. That request comes from Supabase's
+ *    infrastructure, not a browser, so it CAN safely carry a secret — set
+ *    one on each webhook's custom header and the same value as
+ *    WEBHOOK_SHARED_SECRET here. Supabase's default webhook payload shape
+ *    is { type, table, record, schema }.
  */
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -33,15 +36,34 @@ export async function POST(request: NextRequest) {
     }
 
     const record = body.record;
-    if (typeof record.ref_token !== "string" || typeof record.accuracy !== "number") {
+    if (typeof record.ref_token !== "string") {
       return NextResponse.json({ error: "unexpected webhook payload" }, { status: 400 });
     }
-    payload = {
-      ref: record.ref_token,
-      source: "play",
-      title: typeof record.content_set_title === "string" ? record.content_set_title : "",
-      score: record.accuracy,
-    };
+
+    if (body.table === "guest_escape_room_results") {
+      if (typeof record.wrong_clicks !== "number") {
+        return NextResponse.json({ error: "unexpected webhook payload" }, { status: 400 });
+      }
+      // Same formula EscapeRoomPlayPage itself uses, so the percentage
+      // shown in LingoTrace matches what the room's own completion screen implies.
+      const accuracy = Math.max(0, 100 - record.wrong_clicks * 5);
+      payload = {
+        ref: record.ref_token,
+        source: "play",
+        title: typeof record.room_title === "string" ? record.room_title : "",
+        score: accuracy,
+      };
+    } else {
+      if (typeof record.accuracy !== "number") {
+        return NextResponse.json({ error: "unexpected webhook payload" }, { status: 400 });
+      }
+      payload = {
+        ref: record.ref_token,
+        source: "play",
+        title: typeof record.content_set_title === "string" ? record.content_set_title : "",
+        score: record.accuracy,
+      };
+    }
   } else {
     const { ref, examId, examTitle, score } = body;
     if (typeof ref !== "string" || typeof examId !== "string" || typeof score !== "number") {
