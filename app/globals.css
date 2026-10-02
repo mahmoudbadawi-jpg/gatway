@@ -101,6 +101,13 @@ html[dir="rtl"] .switch[data-on="true"] .switch-thumb {
   font-weight: 600;
 }
 
+/* Eye-comfort mode: navy/teal flip to light tones, so white button text becomes
+   unreadable. Use the dark canvas colour for text on those filled buttons. */
+html[data-theme="dark"] .bg-navy.text-white,
+html[data-theme="dark"] .bg-teal.text-white {
+  color: rgb(var(--color-canvas));
+}
+
 @media print {
   .no-print {
     display: none !important;

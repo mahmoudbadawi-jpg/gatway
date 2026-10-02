@@ -27,7 +27,13 @@ export function Header() {
     <header className="no-print sticky top-0 z-50 border-b border-border bg-surface/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
         <Link href="/dashboard" aria-label={t("app.name")} className="flex items-center">
-          <Image src="/logo/gatway-logo.png" alt={t("app.name")} width={72} height={72} priority />
+          <Image
+            src={dark ? "/logo/gatway-logo-white.png" : "/logo/gatway-logo.png"}
+            alt={t("app.name")}
+            width={72}
+            height={72}
+            priority
+          />
         </Link>
 
         <div className="flex items-center gap-5">
