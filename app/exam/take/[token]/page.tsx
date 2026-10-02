@@ -169,7 +169,7 @@ export default function ExamRunnerPage() {
             onClick={() => toggleFlag(q.id)}
             className={`shrink-0 rounded-card border px-3 py-1.5 text-xs font-medium ${
               flagged.has(q.id)
-                ? "border-teal bg-teal/10 text-teal"
+                ? "border-red-500 bg-red-500/10 text-red-500"
                 : "border-border text-navy/60"
             }`}
           >
@@ -218,7 +218,7 @@ export default function ExamRunnerPage() {
                   : answers[qq.id] !== undefined
                   ? "bg-teal/20 text-teal"
                   : "bg-border text-navy/60"
-              } ${flagged.has(qq.id) ? "ring-2 ring-teal" : ""}`}
+              } ${flagged.has(qq.id) ? "ring-2 ring-red-500 ring-offset-2 ring-offset-surface" : ""}`}
             >
               {i + 1}
             </button>
