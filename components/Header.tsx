@@ -30,8 +30,8 @@ export function Header() {
           <Image
             src={dark ? "/logo/gatway-logo-white.png" : "/logo/gatway-logo.png"}
             alt={t("app.name")}
-            width={72}
-            height={72}
+            width={108}
+            height={108}
             priority
           />
         </Link>
