@@ -15,8 +15,9 @@ export default function AdminPortal() {
           description="View every user, and promote or demote their role (Admin, Instructor, Student, Parent)."
         />
         <ModuleCard
+          href="/admin/monitoring"
           title={t("dashboard.admin.monitoring")}
-          description="System-wide access to shared question pools, public exams, and user analytics."
+          description="Platform-wide stats: users, question pool size, every exam's attempt count and average score."
         />
       </div>
     </div>
