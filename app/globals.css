@@ -108,6 +108,27 @@ html[data-theme="dark"] .bg-teal.text-white {
   color: rgb(var(--color-canvas));
 }
 
+/* Eye-comfort mode: form controls default to a white browser background while
+   inheriting light text. Give them the dark surface colours instead. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: rgb(var(--color-canvas));
+  color: rgb(var(--color-navy));
+  border-color: rgb(var(--color-border));
+}
+html[data-theme="dark"] select option {
+  background-color: rgb(var(--color-surface));
+  color: rgb(var(--color-navy));
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: rgb(var(--color-navy) / 0.45);
+}
+
 @media print {
   .no-print {
     display: none !important;
