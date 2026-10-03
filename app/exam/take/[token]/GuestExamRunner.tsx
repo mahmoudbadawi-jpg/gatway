@@ -24,7 +24,10 @@ interface GuestExam {
  * this (assignment, student) pair; it's passed straight through to scoring
  * so the result can be reported back to the right LingoTrace student.
  */
-export default function GuestExamRunner({ token, ref }: { token: string; ref: string }) {
+// NOTE: the prop is named refToken, not ref — `ref` is a reserved special
+// prop in React (for DOM/ref forwarding), and passing a plain string as
+// ref={...} to a function component crashes React at runtime.
+export default function GuestExamRunner({ token, refToken }: { token: string; refToken: string }) {
   const [exam, setExam] = useState<GuestExam | null>(null);
   const [questions, setQuestions] = useState<GuestQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -77,7 +80,7 @@ export default function GuestExamRunner({ token, ref }: { token: string; ref: st
 
     const { data: score, error } = await supabase.rpc("submit_guest_attempt", {
       p_token: token,
-      p_ref: ref,
+      p_ref: refToken,
       p_answers: answers,
       p_flagged: [],
       p_started_at: startedAt,
@@ -97,7 +100,7 @@ export default function GuestExamRunner({ token, ref }: { token: string; ref: st
     fetch("/api/report-result", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ref, examId: exam.id, examTitle: exam.title_en, score }),
+      body: JSON.stringify({ ref: refToken, examId: exam.id, examTitle: exam.title_en, score }),
     }).catch(() => {
       // Nothing actionable to do here for the student; the score is safe.
     });

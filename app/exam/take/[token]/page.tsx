@@ -18,7 +18,7 @@ export default function ExamRunnerPage() {
   const { token } = useParams<{ token: string }>();
 
   if (ref) {
-    return <GuestExamRunner token={token} ref={ref} />;
+    return <GuestExamRunner token={token} refToken={ref} />;
   }
 
   return <AuthenticatedExamRunner />;
