@@ -1,12 +1,30 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useRequireRole } from "@/lib/useRequireRole";
 import { supabase } from "@/lib/supabaseClient";
 import { Exam, Question } from "@/lib/types";
+import GuestExamRunner from "./GuestExamRunner";
 
+/**
+ * A `?ref=` on this URL means a LingoTrace teacher assigned this exam and
+ * the student is arriving via the parent/student portal without a GATway
+ * login — hand off to the guest runner instead of requiring sign-in.
+ */
 export default function ExamRunnerPage() {
+  const searchParams = useSearchParams();
+  const ref = searchParams.get("ref");
+  const { token } = useParams<{ token: string }>();
+
+  if (ref) {
+    return <GuestExamRunner token={token} ref={ref} />;
+  }
+
+  return <AuthenticatedExamRunner />;
+}
+
+function AuthenticatedExamRunner() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const { profile, loading } = useRequireRole(["ADMIN", "INSTRUCTOR", "STUDENT", "PARENT"]);
@@ -169,7 +187,7 @@ export default function ExamRunnerPage() {
             onClick={() => toggleFlag(q.id)}
             className={`shrink-0 rounded-card border px-3 py-1.5 text-xs font-medium ${
               flagged.has(q.id)
-                ? "border-red-500 bg-red-500/10 text-red-500"
+                ? "border-teal bg-teal/10 text-teal"
                 : "border-border text-navy/60"
             }`}
           >
@@ -218,7 +236,7 @@ export default function ExamRunnerPage() {
                   : answers[qq.id] !== undefined
                   ? "bg-teal/20 text-teal"
                   : "bg-border text-navy/60"
-              } ${flagged.has(qq.id) ? "ring-2 ring-red-500 ring-offset-2 ring-offset-surface" : ""}`}
+              } ${flagged.has(qq.id) ? "ring-2 ring-teal" : ""}`}
             >
               {i + 1}
             </button>
