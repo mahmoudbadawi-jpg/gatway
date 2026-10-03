@@ -20,9 +20,11 @@ interface GuestExam {
 
 /**
  * Takes an exam with no GATway account at all — reached from a LingoTrace
- * parent/student portal button. `ref` is the token LingoTrace generated for
- * this (assignment, student) pair; it's passed straight through to scoring
- * so the result can be reported back to the right LingoTrace student.
+ * parent/student portal button. `refToken` is the ref LingoTrace generated
+ * for this (assignment, student) pair; it's passed straight through to
+ * scoring so the result can be reported back to the right LingoTrace
+ * student. Mirrors the authenticated exam runner's flagging and
+ * question-navigator UI, just scored through the guest RPC instead.
  */
 // NOTE: the prop is named refToken, not ref — `ref` is a reserved special
 // prop in React (for DOM/ref forwarding), and passing a plain string as
@@ -31,8 +33,10 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
   const [exam, setExam] = useState<GuestExam | null>(null);
   const [questions, setQuestions] = useState<GuestQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [current, setCurrent] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -74,6 +78,26 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
     [questions, answers]
   );
 
+  function selectAnswer(questionId: string, optionIndex: number) {
+    setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
+  }
+
+  function toggleFlag(questionId: string) {
+    setFlagged((prev) => {
+      const next = new Set(prev);
+      next.has(questionId) ? next.delete(questionId) : next.add(questionId);
+      return next;
+    });
+  }
+
+  function requestSubmit() {
+    if (unanswered > 0 || flagged.size > 0) {
+      setShowWarning(true);
+    } else {
+      void handleSubmit(false);
+    }
+  }
+
   async function handleSubmit(timedOut: boolean) {
     if (!exam || submitting || result !== null) return;
     setSubmitting(true);
@@ -82,7 +106,7 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
       p_token: token,
       p_ref: refToken,
       p_answers: answers,
-      p_flagged: [],
+      p_flagged: Array.from(flagged),
       p_started_at: startedAt,
       p_timed_out: timedOut,
     });
@@ -146,7 +170,20 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
       </div>
 
       <div className="card p-6">
-        <p className="mb-4 text-lg font-medium text-navy">{q.text_en}</p>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <p className="text-lg font-medium text-navy">{q.text_en}</p>
+          <button
+            onClick={() => toggleFlag(q.id)}
+            className={`shrink-0 rounded-card border px-3 py-1.5 text-xs font-medium ${
+              flagged.has(q.id)
+                ? "border-red-500 bg-red-500/10 text-red-500"
+                : "border-border text-navy/60"
+            }`}
+          >
+            {flagged.has(q.id) ? "🚩 Flagged" : "Flag question"}
+          </button>
+        </div>
+
         <div className="flex flex-col gap-2">
           {q.options_en.map((opt, i) => (
             <label
@@ -159,7 +196,7 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
                 type="radio"
                 name={q.id}
                 checked={answers[q.id] === i}
-                onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: i }))}
+                onChange={() => selectAnswer(q.id, i)}
                 className="h-4 w-4 accent-teal"
               />
               {opt}
@@ -177,6 +214,24 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
           Previous
         </button>
 
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {questions.map((qq, i) => (
+            <button
+              key={qq.id}
+              onClick={() => setCurrent(i)}
+              className={`h-8 w-8 rounded-full text-xs font-medium ${
+                i === current
+                  ? "bg-navy text-white"
+                  : answers[qq.id] !== undefined
+                  ? "bg-teal/20 text-teal"
+                  : "bg-border text-navy/60"
+              } ${flagged.has(qq.id) ? "ring-2 ring-red-500 ring-offset-2 ring-offset-surface" : ""}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
         {current < questions.length - 1 ? (
           <button
             onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}
@@ -186,10 +241,7 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
           </button>
         ) : (
           <button
-            onClick={() => {
-              if (unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
-              void handleSubmit(false);
-            }}
+            onClick={requestSubmit}
             disabled={submitting}
             className="rounded-card bg-teal px-5 py-2 font-medium text-white hover:bg-teal-light disabled:opacity-60"
           >
@@ -197,6 +249,36 @@ export default function GuestExamRunner({ token, refToken }: { token: string; re
           </button>
         )}
       </div>
+
+      {showWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="card max-w-sm p-6">
+            <h3 className="mb-2 font-semibold text-navy">Before you submit</h3>
+            <p className="mb-4 text-sm text-navy/70">
+              {unanswered > 0 && <>{unanswered} question(s) are unanswered. </>}
+              {flagged.size > 0 && <>{flagged.size} question(s) are flagged for review. </>}
+              Submit anyway?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowWarning(false)}
+                className="rounded-card border border-border px-4 py-2 text-sm text-navy"
+              >
+                Go back
+              </button>
+              <button
+                onClick={() => {
+                  setShowWarning(false);
+                  void handleSubmit(false);
+                }}
+                className="rounded-card bg-teal px-4 py-2 text-sm font-medium text-white"
+              >
+                Submit anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
