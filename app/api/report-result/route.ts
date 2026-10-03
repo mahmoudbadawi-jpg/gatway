@@ -65,9 +65,13 @@ export async function POST(request: NextRequest) {
       };
     }
   } else {
-    const { ref, examId, examTitle, score } = body;
-    if (typeof ref !== "string" || typeof examId !== "string" || typeof score !== "number") {
-      return NextResponse.json({ error: "ref, examId, and score are required" }, { status: 400 });
+    const { ref, examId, examTitle } = body;
+    // Postgres `numeric` RPC results come back from Supabase as a STRING
+    // (e.g. "88.00"), not a number — accept either rather than silently
+    // rejecting a well-formed score just because of its JS type.
+    const score = typeof body.score === "number" ? body.score : Number(body.score);
+    if (typeof ref !== "string" || typeof examId !== "string" || Number.isNaN(score)) {
+      return NextResponse.json({ error: "ref, examId, and a numeric score are required" }, { status: 400 });
     }
     payload = {
       ref,

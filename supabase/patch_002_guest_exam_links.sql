@@ -9,7 +9,7 @@
 -- see app/api/report-result/route.ts.
 -- ============================================================
 
-create table guest_attempts (
+create table if not exists guest_attempts (
   id uuid primary key default gen_random_uuid(),
   exam_id uuid references exams(id) on delete cascade,
   ref_token text not null,
@@ -77,7 +77,12 @@ grant execute on function get_exam_for_taking(uuid) to anon, authenticated;
 -- Scores the attempt SERVER-SIDE (client only ever sends its answers, never
 -- a score) and stores it. Returns the computed score so the exam page can
 -- show a result screen immediately.
-create or replace function submit_guest_attempt(
+-- Postgres won't let CREATE OR REPLACE change a return type, and this
+-- function already exists from the first run of this file (as `returns
+-- numeric`) — drop it first so the fixed version below can replace it.
+drop function if exists submit_guest_attempt(uuid, text, jsonb, jsonb, timestamptz, boolean);
+
+create function submit_guest_attempt(
   p_token uuid,
   p_ref text,
   p_answers jsonb,      -- {"<question_id>": <option_index>, ...}
@@ -85,7 +90,12 @@ create or replace function submit_guest_attempt(
   p_started_at timestamptz,
   p_timed_out boolean
 )
-returns numeric
+-- double precision, not numeric: Supabase/PostgREST serializes `numeric`
+-- as a JSON STRING (e.g. "88.00") to avoid float rounding loss, which
+-- silently failed the typeof score === "number" check in
+-- /api/report-result and made every GATway score vanish with no error
+-- anywhere. double precision serializes as a real JSON number instead.
+returns double precision
 language plpgsql
 security definer
 set search_path = public
@@ -124,7 +134,7 @@ begin
         status = excluded.status,
         submitted_at = now();
 
-  return v_score;
+  return v_score::double precision;
 end;
 $$;
 
